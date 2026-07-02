@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { DonationService } from '../../services/donation.service';
 import { Donation } from '../../models/donation.model';
-import { DonationForm } from '../donation-form/donation-form';
+import { DonationForm, DonationFormData } from '../donation-form/donation-form';
 
 @Component({
   selector: 'app-donation-list',
@@ -22,8 +22,9 @@ export class DonationList implements OnInit {
   protected readonly donations = signal<Donation[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
+  protected readonly deleteError = signal(false);
 
-  protected readonly displayedColumns = ['donorName', 'amount', 'date', 'type', 'notes'];
+  protected readonly displayedColumns = ['donorName', 'amount', 'date', 'type', 'notes', 'actions'];
 
   ngOnInit(): void {
     this.loadDonations();
@@ -35,6 +36,35 @@ export class DonationList implements OnInit {
       if (result) {
         this.donations.update((current) => [...current, result]);
       }
+    });
+  }
+
+  openEditDialog(donation: Donation): void {
+    const dialogRef = this.dialog.open<DonationForm, DonationFormData, Donation | undefined>(DonationForm, {
+      width: '480px',
+      data: { donation },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.donations.update((current) => current.map((d) => (d.id === result.id ? result : d)));
+      }
+    });
+  }
+
+  deleteDonation(donation: Donation): void {
+    const confirmed = window.confirm(`Delete the donation from ${donation.donorName}? This cannot be undone.`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.deleteError.set(false);
+    this.donationService.delete(donation.id).subscribe({
+      next: () => {
+        this.donations.update((current) => current.filter((d) => d.id !== donation.id));
+      },
+      error: () => {
+        this.deleteError.set(true);
+      },
     });
   }
 

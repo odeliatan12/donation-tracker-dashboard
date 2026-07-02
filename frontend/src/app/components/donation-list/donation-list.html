@@ -6,6 +6,10 @@
   </button>
 </div>
 
+@if (deleteError()) {
+  <p class="error">Could not delete the donation. Please try again.</p>
+}
+
 @if (loading()) {
   <mat-spinner diameter="40"></mat-spinner>
 } @else if (error()) {
@@ -37,6 +41,18 @@
     <ng-container matColumnDef="notes">
       <th mat-header-cell *matHeaderCellDef>Notes</th>
       <td mat-cell *matCellDef="let donation">{{ donation.notes }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let donation">
+        <button mat-icon-button aria-label="Edit donation" (click)="openEditDialog(donation)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Delete donation" (click)="deleteDonation(donation)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

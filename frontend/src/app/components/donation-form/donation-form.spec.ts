@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { Observable, of, throwError } from 'rxjs';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import { DonationForm } from './donation-form';
+import { DonationForm, DonationFormData } from './donation-form';
 import { DonationService } from '../../services/donation.service';
 import { Donation } from '../../models/donation.model';
 
@@ -11,7 +11,7 @@ describe('DonationForm', () => {
   let component: DonationForm;
   let fixture: ComponentFixture<DonationForm>;
   let dialogRefStub: { close: ReturnType<typeof vi.fn> };
-  let donationServiceStub: { create: ReturnType<typeof vi.fn> };
+  let donationServiceStub: { create: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
 
   const createdDonation: Donation = {
     id: 1,
@@ -22,15 +22,28 @@ describe('DonationForm', () => {
     notes: null,
   };
 
-  async function setup(createResult: Observable<Donation>) {
+  const existingDonation: Donation = {
+    id: 5,
+    donorName: 'John Smith',
+    amount: 75.5,
+    date: '2026-06-20',
+    type: 'CASH',
+    notes: 'existing note',
+  };
+
+  async function setup(result$: Observable<Donation>, dialogData: DonationFormData = {}) {
     dialogRefStub = { close: vi.fn() };
-    donationServiceStub = { create: vi.fn().mockReturnValue(createResult) };
+    donationServiceStub = {
+      create: vi.fn().mockReturnValue(result$),
+      update: vi.fn().mockReturnValue(result$),
+    };
 
     await TestBed.configureTestingModule({
       imports: [DonationForm],
       providers: [
         { provide: MatDialogRef, useValue: dialogRefStub },
         { provide: DonationService, useValue: donationServiceStub },
+        { provide: MAT_DIALOG_DATA, useValue: dialogData },
       ],
     }).compileComponents();
 
@@ -100,5 +113,36 @@ describe('DonationForm', () => {
     component.onCancel();
 
     expect(dialogRefStub.close).toHaveBeenCalledWith();
+  });
+
+  it('should pre-fill the form when editing an existing donation', async () => {
+    await setup(of(existingDonation), { donation: existingDonation });
+
+    expect(component['isEditMode']).toBe(true);
+    expect(component['form'].getRawValue()).toEqual({
+      donorName: 'John Smith',
+      amount: 75.5,
+      date: new Date(2026, 5, 20),
+      type: 'CASH',
+      notes: 'existing note',
+    });
+    expect(fixture.nativeElement.textContent).toContain('Edit Donation');
+  });
+
+  it('should call update, not create, when editing', async () => {
+    await setup(of(existingDonation), { donation: existingDonation });
+
+    component['form'].patchValue({ amount: 90 });
+    component.onSubmit();
+
+    expect(donationServiceStub.update).toHaveBeenCalledWith(5, {
+      donorName: 'John Smith',
+      amount: 90,
+      date: '2026-06-20',
+      type: 'CASH',
+      notes: 'existing note',
+    });
+    expect(donationServiceStub.create).not.toHaveBeenCalled();
+    expect(dialogRefStub.close).toHaveBeenCalledWith(existingDonation);
   });
 });
