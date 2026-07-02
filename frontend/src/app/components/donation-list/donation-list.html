@@ -1,4 +1,10 @@
-<h1>Donations</h1>
+<div class="header-row">
+  <h1>Donations</h1>
+  <button mat-flat-button color="primary" (click)="openAddDialog()">
+    <mat-icon>add</mat-icon>
+    Add Donation
+  </button>
+</div>
 
 @if (loading()) {
   <mat-spinner diameter="40"></mat-spinner>

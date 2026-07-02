@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>Add Donation</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="form-content">
+    <mat-form-field appearance="outline">
+      <mat-label>Donor name</mat-label>
+      <input matInput formControlName="donorName" required>
+      @if (form.controls.donorName.invalid && form.controls.donorName.touched) {
+        <mat-error>Donor name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Amount</mat-label>
+      <input matInput type="number" formControlName="amount" required min="0.01" step="0.01">
+      @if (form.controls.amount.invalid && form.controls.amount.touched) {
+        <mat-error>Amount must be greater than 0</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date" required>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type" required>
+        @for (donationType of donationTypes; track donationType) {
+          <mat-option [value]="donationType">{{ donationType }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Notes (optional)</mat-label>
+      <textarea
+        matInput
+        formControlName="notes"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="2"
+        cdkAutosizeMaxRows="4"
+      ></textarea>
+    </mat-form-field>
+
+    @if (saveError()) {
+      <p class="error">Could not save the donation. Please try again.</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving...' : 'Save' }}
+    </button>
+  </mat-dialog-actions>
+</form>
