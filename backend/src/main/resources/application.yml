@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: donation-tracker
+  profiles:
+    active: dev
