@@ -1,0 +1,20 @@
+.metric-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.metric-cards mat-card {
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.error {
+  color: var(--mat-sys-error);
+}

@@ -1,1 +1,36 @@
-<p>dashboard works!</p>
+<h1>Dashboard</h1>
+
+@if (loading()) {
+  <mat-spinner diameter="40"></mat-spinner>
+} @else if (error()) {
+  <p class="error">Could not load dashboard data. Please try again later.</p>
+} @else if (summary(); as data) {
+  <div class="metric-cards">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Total Donations</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="metric-value">{{ data.totalAllTime | currency }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>This Month</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="metric-value">{{ data.totalThisMonth | currency }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Number of Donations</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="metric-value">{{ data.totalCount }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
