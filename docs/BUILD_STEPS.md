@@ -54,7 +54,7 @@ the next is generated.
 
 ## Phase F — Second deploy (full stack)
 
-30. `Add CORS config on the backend restricted to the Netlify origin, and set environment.prod.ts's apiBaseUrl to the Render URL.`
+30. `Add CORS config on the backend restricted to the Netlify origin, and set environment.prod.ts's apiBaseUrl to the Render URL.` Note: must explicitly set `.allowedMethods("GET", "POST", "PUT", "DELETE")` — Spring's CORS defaults only permit GET/HEAD/POST when methods aren't listed, which silently blocks edit/delete from the browser (confirmed while testing step 23).
 31. ✅ **Checkpoint (deploy):** connect the repo to Netlify (build command `ng build --configuration production`, add `_redirects`), deploy, click through the live dashboard and donations pages end-to-end against the live Render backend.
 
 ## Phase G — Bonus (only after F is solid)
